@@ -17,17 +17,18 @@
         id="myDropzone" maxFiles="1">
         {% csrf_token %}
         <div class='fallback'>
-            <input name="file" type="file"/>
+            <input name="file" type="file" value="Upload"/>
         </div>
         </form>
         <script>
-            Dropzone.options.uploadImagesForm = {
+            Dropzone.options.myDropzone = {
                 maxFilesize: 1,
                 acceptedFiles: '.csv',
                 init: function() {
                     this.on('success', function(){
                         if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) {
-                                location.reload();
+                            window.location = '/'
+                            consloe.log('success')
                         }
                     });
                 }

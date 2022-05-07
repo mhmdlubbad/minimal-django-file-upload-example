@@ -9,7 +9,7 @@ import pandas_profiling
 import PIL
 from django.core.handlers.wsgi import WSGIRequest
 from io import StringIO
-context = {'message':'Upload as many files as you want!'}
+context = {'message':'Upload your CSV file'}
 def file_upload_view(request):
     print(request)
     # import pdb; pdb.set_trace()        
@@ -23,13 +23,10 @@ def file_upload_view(request):
         f.close()
         df = pd.read_csv(f'media/{my_file.name}')
         profile = pandas_profiling.ProfileReport(df)
-        profile.to_file('export.html')
-        context = {'message': profile.html}#.split('<body>')[-1].split('</body>')[0]}
-        request = WSGIRequest({
-        'REQUEST_METHOD': 'GET',
-        'PATH_INFO': '/upload',
-        'wsgi.input': StringIO()})
-        import pdb; pdb.set_trace()
-        file_upload_view(request)
+        # profile.to_file('export.html')
+        html_profile = profile.html
+        context = {'message': html_profile}
+        return render(request, 'list.html', context)
+        # return redirect(request.META['HTTP_REFERER'])
                 
     return render(request, 'list.html', context)
