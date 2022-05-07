@@ -3,35 +3,42 @@
     <head>
         <meta charset="utf-8">
         <title>Minimal Django File Upload Example</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
     </head>
 
     <body>
-        <!-- List of uploaded documents -->
-        {% if documents %}
-            All documents in the database:
-            <ul>
-                {% for document in documents %}
-                    <li><a href="{{ document.docfile.url }}">{{ document.docfile.name }}</a></li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No documents.</p>
-        {% endif %}
+        <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 
-        <!-- Upload form. Note enctype attribute! -->
-        <form action="{% url "my-view" %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ message }}
-            <p>{{ form.non_field_errors }}</p>
-
-            <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
-
-            <p>
-                {{ form.docfile.errors }}
-                {{ form.docfile }}
-            </p>
-
-            <p><input type="submit" value="Upload"/></p>
+        <form action="upload/" method="POST"
+        class="dropzone"
+        id="myDropzone" maxFiles="1">
+        {% csrf_token %}
+        <div class='fallback'>
+            <input name="file" type="file"/>
+        </div>
         </form>
+        <script>
+            Dropzone.options.uploadImagesForm = {
+                maxFilesize: 1,
+                acceptedFiles: '.csv',
+                init: function() {
+                    this.on('success', function(){
+                        if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) {
+                                location.reload();
+                        }
+                    });
+                }
+            };
+        </script>
+        <div>
+            {% autoescape off %}{{ message }}{% endautoescape %}
+
+
+        </div>
+        
     </body>
+    
 </html>

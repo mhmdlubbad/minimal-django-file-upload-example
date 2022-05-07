@@ -17,7 +17,12 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from myapp.views import file_upload_view
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('myapp.urls')),
+    # path('', include('myapp.urls')),
+
+    path('', file_upload_view, name='upload-view'),#include('myapp.urls')),
+    path('upload/', file_upload_view, name='upload-view'),
+    # path('pivot-table/', pivot_table, name='pivot-table'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

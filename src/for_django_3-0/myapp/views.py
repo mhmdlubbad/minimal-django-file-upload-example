@@ -1,28 +1,35 @@
 from django.shortcuts import redirect, render
 from .models import Document
 from .forms import DocumentForm
-
-
-def my_view(request):
-    print(f"Great! You're using Python 3.6+. If you fail here, use the right version.")
-    message = 'Upload as many files as you want!'
-    # Handle file upload
+from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
+from .models import Document
+import pandas as pd
+import os
+import pandas_profiling
+import PIL
+from django.core.handlers.wsgi import WSGIRequest
+from io import StringIO
+context = {'message':'Upload as many files as you want!'}
+def file_upload_view(request):
+    print(request)
+    # import pdb; pdb.set_trace()        
+    global context
     if request.method == 'POST':
-        form = DocumentForm(request.POST, request.FILES)
-        if form.is_valid():
-            newdoc = Document(docfile=request.FILES['docfile'])
-            newdoc.save()
-
-            # Redirect to the document list after POST
-            return redirect('my-view')
-        else:
-            message = 'The form is not valid. Fix the following error:'
-    else:
-        form = DocumentForm()  # An empty, unbound form
-
-    # Load documents for the list page
-    documents = Document.objects.all()
-
-    # Render list page with the documents and the form
-    context = {'documents': documents, 'form': form, 'message': message}
+        working_file = True
+        my_file = request.FILES.get('file')
+        data_bytes = my_file.file.getvalue()
+        f = open(f'media/{my_file.name}', 'wb')
+        f.write(data_bytes)
+        f.close()
+        df = pd.read_csv(f'media/{my_file.name}')
+        profile = pandas_profiling.ProfileReport(df)
+        profile.to_file('export.html')
+        context = {'message': profile.html}#.split('<body>')[-1].split('</body>')[0]}
+        request = WSGIRequest({
+        'REQUEST_METHOD': 'GET',
+        'PATH_INFO': '/upload',
+        'wsgi.input': StringIO()})
+        import pdb; pdb.set_trace()
+        file_upload_view(request)
+                
     return render(request, 'list.html', context)
